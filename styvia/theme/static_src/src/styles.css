@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+
+@theme {
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-sm-md: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-md-lg: 900px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Custom colors */
+  --color-primary: #DC2626;
+  --color-primary-dark: #B91C1C;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #111827;
+  --color-surface-light: #F9FAFB;
+  --color-surface-dark: #1F2937;
+  --color-text-light: #1F2937;
+  --color-text-dark: #F3F4F6;
+  --color-text-muted-light: #6B7280;
+  --color-text-muted-dark: #9CA3AF;
+  --color-accent-light: #FEF2F2;
+  --color-accent-dark: #371B1B;
+
+  /* Fonts */
+  
+  --font-body: "Poppins", sans-serif;
+
+  /* Border radius */
+  --radius-default: 0.5rem;
+}
+
+@source "../../../**/*.{html,py,js}";
