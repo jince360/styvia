@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "core",
     "tailwind",
     "theme", 
+    "category",
 ]
 
 TAILWIND_APP_NAME = "theme"
