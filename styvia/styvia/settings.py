@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "tailwind",
     "theme", 
     "category",
+    "account",
 ]
 
 TAILWIND_APP_NAME = "theme"
@@ -75,6 +76,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'styvia.wsgi.application'
+
+AUTH_USER_MODEL = "account.Account"
 
 
 # Database
