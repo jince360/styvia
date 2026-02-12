@@ -12,8 +12,11 @@
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
             rel="stylesheet"
         />
-        {% now "U" as script_version %}
-        <script defer src="{% static 'javascript/script.js' %}?v={{ script_version }}"></script>
+
+        {% comment %} {% now "U" as script_version %}
+        <script defer src="{% static 'javascript/script.js' %}?v={{ script_version }}"></script> {% endcomment %}
+        
+        <script defer src="{% static 'javascript/script.js' %}"></script>
 
         
     </head>
