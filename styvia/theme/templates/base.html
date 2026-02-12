@@ -1,20 +1,265 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Django Tailwind</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {% tailwind_css %}
-</head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>E-commerce Navigation</title>
+        {% tailwind_css %}
 
-<body class="bg-gray-50 text-black font-serif leading-normal tracking-normal">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+            rel="stylesheet"
+        />
 
-<div class="container mx-auto">
-    <section class="flex items-center justify-center h-screen">
-        <h1 class="text-5xl">Django + Tailwind = ❤️</h1>
-    </section>
-</div>
-</body>
+        {% comment %} {% now "U" as script_version %}
+            <script defer src="{% static 'javascript/script.js' %}?v={{ script_version }}"></script>
+        {% endcomment %}
+
+        <script defer src="{% static 'javascript/script.js' %}"></script>
+    </head>
+    <body class="bg-gray-50 font-body min-h-screen transition-colors duration-300">
+        <header
+            class="sticky top-0 w-full z-50 bg-background-light shadow-nav transition-colors duration-300 md:fixed md:top-0"
+        >
+            <div class="max-w-[1600px] mx-auto px-4 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <button
+                        class="xl:hidden p-2 text-text-main-light flex items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full"
+                        id="mobile-menu-toggle"
+                        type="button"
+                        aria-controls="mobile-menu"
+                        aria-expanded="false"
+                    >
+                        <span class="material-symbols-outlined text-2xl">menu</span>
+                    </button>
+                    <a class="flex items-center justify-center" href="#">
+                        <span>
+                            <img src="{% static 'images/logo/styvia-logo-name.png' %}" alt="Logo" class="w-24" />
+                        </span>
+                    </a>
+                </div>
+                <nav class="hidden xl:flex h-full items-center">
+                    <ul class="flex h-full text-sm font-bold tracking-wide text-text-main-light uppercase">
+                        {% for i in main_categories %}
+                            <li
+                                class="group h-full flex items-center px-4 cursor-pointer border-b-4 border-transparent hover:border-primary hover:text-primary transition-all duration-200"
+                            >
+                                <a href="#">{{ i.name|title }}</a>
+                                <div
+                                    class="mega-menu absolute top-20 left-0 w-full bg-white shadow-lg border-t opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-40"
+                                >
+                                    <div
+                                        class="max-w-[1200px] mx-auto py-8 px-6 grid grid-cols-5 gap-8 text-left normal-case font-normal text-gray-600"
+                                    >
+                                        {% for j in i.subcategories.all %}
+                                            {% if j.is_active %}
+                                                <div>
+                                                    <h4 class="text-primary font-bold mb-3 uppercase text-xs">{{ j.name|title }}</h4>
+                                                    <ul class="space-y-2 text-sm">
+                                                        {% for k in j.categories.all %}
+                                                            {% if k.is_active %}
+                                                                <li>
+                                                                    <a class="hover:font-semibold hover:text-gray-900" href="#">
+                                                                        {{ k.name|title }}
+                                                                    </a>
+                                                                </li>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+                <div
+                    class="flex items-center gap-2 md:gap-6 flex-1 lg:flex-none justify-end lg:justify-start lg:min-w-[400px]"
+                >
+                    <div
+                        class="hidden md:flex items-center w-72 lg:w-96 bg-search-bg-light rounded-md px-4 py-2.5 transition-colors duration-300 group border border-gray-200 shadow-sm focus-within:bg-white focus-within:shadow-md focus-within:border-gray-300"
+                    >
+                        <span
+                            class="material-symbols-outlined text-gray-400 text-lg mr-3 group-focus-within:text-gray-600"
+                        >
+                            search
+                        </span>
+                        <input
+                            class="bg-transparent border-none outline-none text-sm w-full text-text-main-light placeholder-gray-400 p-0 focus:ring-0"
+                            placeholder="Search for products, brands and more"
+                            type="text"
+                        />
+                    </div>
+                    <div class="flex items-center gap-1 sm:gap-4">
+                        <div class="flex flex-col items-center cursor-pointer group px-2">
+                            <span
+                                class="material-symbols-outlined text-text-main-light group-hover:text-primary transition-colors"
+                            >
+                                person
+                            </span>
+                            <span
+                                class="text-xs font-bold text-text-main-light mt-0.5 group-hover:text-primary transition-colors hidden sm:block"
+                            >
+                                Profile
+                            </span>
+                        </div>
+                        <div class="flex flex-col items-center cursor-pointer group px-2">
+                            <span
+                                class="material-symbols-outlined text-text-main-light group-hover:text-primary transition-colors"
+                            >
+                                favorite
+                            </span>
+                            <span
+                                class="text-xs font-bold text-text-main-light mt-0.5 group-hover:text-primary transition-colors hidden sm:block"
+                            >
+                                Wishlist
+                            </span>
+                        </div>
+                        <div class="flex flex-col items-center cursor-pointer group px-2 relative">
+                            <span
+                                class="material-symbols-outlined text-text-main-light group-hover:text-primary transition-colors"
+                            >
+                                shopping_bag
+                            </span>
+                            <span
+                                class="text-xs font-bold text-text-main-light mt-0.5 group-hover:text-primary transition-colors hidden sm:block"
+                            >
+                                Bag
+                            </span>
+                            <span
+                                class="absolute -top-1 right-1 sm:right-2 bg-primary text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full"
+                            >
+                                1
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mobile-search-bar" class="md:hidden px-4 pt-3 pb-3 border-t border-gray-100">
+                <div class="flex items-center gap-3 bg-search-bg-light rounded-md px-3 py-1 border border-gray-200">
+                    <span class="material-symbols-outlined text-gray-400 text-lg">search</span>
+                    <input
+                        id="mobile-search-input"
+                        class="bg-transparent border-none outline-none text-sm w-full text-text-main-light placeholder-gray-400 p-0 focus:ring-0"
+                        placeholder="Search for products, brands and more"
+                        type="text"
+                    />
+                    <button id="mobile-search-close" type="button" class="p-1 text-text-main-light" aria-label="Close search">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <div
+                id="mobile-menu-overlay"
+                class="xl:hidden fixed inset-0 bg-black/30 opacity-0 pointer-events-none transition-opacity duration-200"
+            ></div>
+
+            <div
+                id="mobile-menu"
+                class="xl:hidden fixed top-0 left-0 h-full w-80 max-w-[85vw] overflow-y-auto bg-white shadow-xl -translate-x-full transition-transform duration-200"
+                aria-hidden="true"
+            >
+                <div class="h-20 px-4 flex items-center justify-between border-b">
+                    <span class="text-base font-semibold text-text-main-light">Menu</span>
+                    <button
+                        class="p-2 text-text-main-light flex items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full"
+                        id="mobile-menu-close"
+                        type="button"
+                        aria-label="Close menu"
+                    >
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="flex items-center gap-3 bg-search-bg-light rounded-md px-3 py-2 border border-gray-200">
+                        <span class="material-symbols-outlined text-gray-400 text-lg">search</span>
+                        <input
+                            class="bg-transparent border-none outline-none text-sm w-full text-text-main-light placeholder-gray-400 p-0 focus:ring-0"
+                            placeholder="Search products"
+                            type="text"
+                        />
+                    </div>
+                    <nav class="space-y-2 text-sm font-semibold text-text-main-light uppercase">
+                        {% for main_category in main_categories %}
+                            <div class="mobile-menu-group">
+                                <div class="flex items-center justify-between px-2 py-2 rounded hover:bg-gray-50">
+                                    <a class="flex-1" href="#">{{ main_category.name }}</a>
+                                    {% if main_category.subcategories.all %}
+                                        <button
+                                            type="button"
+                                            class="mobile-menu-arrow p-1"
+                                            aria-expanded="false"
+                                            aria-label="Toggle sub categories"
+                                            data-target="main-{{ main_category.id }}"
+                                        >
+                                            <span
+                                                class="material-symbols-outlined text-lg transition-transform duration-200 cursor-pointer"
+                                            >
+                                                chevron_right
+                                            </span>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                {% if main_category.subcategories.all %}
+                                    <div id="main-{{ main_category.id }}" class="hidden ml-3 border-l border-gray-200 pl-2 py-1 space-y-1">
+                                        {% for sub_category in main_category.subcategories.all %}
+                                            <div class="mobile-submenu-group">
+                                                <div class="flex items-center justify-between px-2 py-2 rounded hover:bg-gray-50 font-normal">
+                                                    <a class="flex-1" href="#">{{ sub_category.name }}</a>
+                                                    {% if sub_category.categories.all %}
+                                                        <button
+                                                            type="button"
+                                                            class="mobile-menu-arrow p-1"
+                                                            aria-expanded="false"
+                                                            aria-label="Toggle categories"
+                                                            data-target="sub-{{ sub_category.id }}"
+                                                        >
+                                                            <span
+                                                                class="material-symbols-outlined text-lg transition-transform duration-200 cursor-pointer"
+                                                            >
+                                                                chevron_right
+                                                            </span>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                                {% if sub_category.categories.all %}
+                                                    <div
+                                                        id="sub-{{ sub_category.id }}"
+                                                        class="hidden ml-3 border-l border-gray-100 pl-2 py-1 space-y-1 font-normal"
+                                                    >
+                                                        {% for category in sub_category.categories.all %}
+                                                            <a class="block px-2 py-2 rounded hover:bg-gray-50" href="#">{{ category.name }}</a>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </nav>
+                    <div class="pt-2 border-t text-sm font-semibold text-text-main-light uppercase space-y-2">
+                        <a class="block px-2 py-2 rounded hover:bg-gray-50" href="#">Profile</a>
+                        <a class="block px-2 py-2 rounded hover:bg-gray-50" href="#">Wishlist</a>
+                        <a class="block px-2 py-2 rounded hover:bg-gray-50" href="#">Bag</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="pt-0 md:pt-20 max-w-[1600px] mx-auto">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </body>
 </html>

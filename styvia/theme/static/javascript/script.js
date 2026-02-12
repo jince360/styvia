@@ -74,3 +74,42 @@
         toggleNestedMenu(arrowButton);
     });
 })();
+
+(() => {
+    const carousel = document.querySelector("[data-carousel]");
+    if (!carousel) return;
+
+    const slides = Array.from(carousel.querySelectorAll("[data-carousel-slide]"));
+    const prevButton = carousel.querySelector("[data-carousel-prev]");
+    const nextButton = carousel.querySelector("[data-carousel-next]");
+
+    if (!slides.length) return;
+
+    let currentIndex = slides.findIndex((slide) => !slide.classList.contains("opacity-0"));
+    if (currentIndex < 0) currentIndex = 0;
+
+    const updateCarousel = (index) => {
+        slides.forEach((slide, slideIndex) => {
+            const isActive = slideIndex === index;
+            slide.classList.toggle("opacity-100", isActive);
+            slide.classList.toggle("opacity-0", !isActive);
+            slide.classList.toggle("pointer-events-none", !isActive);
+        });
+
+    };
+
+    const goToSlide = (index) => {
+        currentIndex = (index + slides.length) % slides.length;
+        updateCarousel(currentIndex);
+    };
+
+    prevButton?.addEventListener("click", () => goToSlide(currentIndex - 1));
+    nextButton?.addEventListener("click", () => goToSlide(currentIndex + 1));
+
+    if (slides.length <= 1) {
+        prevButton?.classList.add("hidden");
+        nextButton?.classList.add("hidden");
+    }
+
+    updateCarousel(currentIndex);
+})();
