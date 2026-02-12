@@ -16,7 +16,7 @@ class MainCategory(models.Model):
     class Meta:
         verbose_name = "Main category"
         verbose_name_plural = "Main categories"
-        ordering = ["order", "name"]
+        ordering = ["order",]
         indexes = [
             models.Index(fields=["is_active", "order"]),
         ]
