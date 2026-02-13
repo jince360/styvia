@@ -1,20 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-    <div class="bg-white -mx-4">
+    <div class="bg-white">
         <div class="relative aspect-[32/9] w-full overflow-hidden" data-carousel id="hero-carousel">
             {% for i in hero_images %}
                 <div
-                    class="absolute inset-0 z-0 transition-opacity duration-500 {% if forloop.first %}opacity-100{% else %}opacity-0 pointer-events-none{% endif %}"
+                    class="absolute  px-2 md:px-0  inset-0 z-0 transition-opacity duration-700 ease-in-out {% if forloop.first %}opacity-100{% else %}opacity-0 pointer-events-none{% endif %}"
                     data-carousel-slide
                 >
-                    <img src="{{ i.desktop_image.url }}" alt="Hero banner {{ forloop.counter }}" class="w-full h-full object-cover">
+                    <img src="{{ i.desktop_image.url }}" alt="Hero banner {{ forloop.counter }}" class="w-full h-full object-cover rounded-xl md:rounded-none">
                 </div>
             {% endfor %}
 
             <button
                 type="button"
-                class="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full text-white shadow-lg flex items-center justify-center"
+                class="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full text-white shadow-lg hidden md:flex items-center justify-center"
                 style="background-color: rgba(0,0,0,0.72);"
                 aria-label="Previous slide"
                 data-carousel-prev
@@ -24,13 +24,29 @@
 
             <button
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full text-white shadow-lg flex items-center justify-center"
+                class="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full text-white shadow-lg hidden md:flex items-center justify-center"
                 style="background-color: rgba(0,0,0,0.72); "
                 aria-label="Next slide"
                 data-carousel-next
             >
                 <span class="material-symbols-outlined cursor-pointer">chevron_right</span>
             </button>
+
+            <div
+                class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2"
+                data-carousel-pagination
+                aria-label="Carousel pagination"
+            >
+                {% for i in hero_images %}
+                    <button
+                        type="button"
+                        class="h-1.5 w-1.5 cursor-pointer rounded-full transition-all duration-300 {% if forloop.first %}bg-white{% else %}bg-white/50{% endif %}"
+                        aria-label="Go to slide {{ forloop.counter }}"
+                        aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                        data-carousel-indicator
+                    ></button>
+                {% endfor %}
+            </div>
         </div>
     </div>
 {% endblock %}
