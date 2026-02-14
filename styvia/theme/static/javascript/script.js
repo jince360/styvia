@@ -207,3 +207,112 @@
     updateCarousel(currentIndex);
     startAutoSlide();
 })();
+
+(() => {
+    const brandCarousel = document.querySelector("[data-brand-carousel]");
+    if (!brandCarousel) return;
+
+    const track = brandCarousel.querySelector("[data-brand-track]");
+    const prevButton = brandCarousel.querySelector("[data-brand-prev]");
+    const nextButton = brandCarousel.querySelector("[data-brand-next]");
+    const pagination = brandCarousel.closest("section")?.querySelector("[data-brand-pagination]");
+
+    if (!track) return;
+
+    const getPageWidth = () => track.clientWidth;
+    const getMaxScroll = () => Math.max(track.scrollWidth - track.clientWidth, 0);
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const getPageCount = () => {
+        const width = getPageWidth();
+        const maxScroll = getMaxScroll();
+        if (!width) return 1;
+        return Math.max(1, Math.ceil(maxScroll / width) + 1);
+    };
+    let dots = [];
+
+    const getCurrentPage = () => {
+        const width = getPageWidth();
+        if (!width) return 0;
+        return Math.round(track.scrollLeft / width);
+    };
+
+    const scrollToPage = (pageIndex) => {
+        const width = getPageWidth();
+        const maxScroll = getMaxScroll();
+        if (!width || maxScroll <= 0) return;
+
+        const target = clamp(pageIndex * width, 0, maxScroll);
+        track.scrollTo({ left: target, behavior: "smooth" });
+    };
+
+    const renderDots = () => {
+        if (!pagination) return;
+
+        pagination.innerHTML = "";
+        const pageCount = getPageCount();
+        if (pageCount <= 1) {
+            pagination.classList.add("hidden");
+            dots = [];
+            return;
+        }
+
+        pagination.classList.remove("hidden");
+        dots = Array.from({ length: pageCount }, (_, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "w-2 h-2 rounded-full bg-zinc-300 transition-colors";
+            dot.setAttribute("aria-label", `Go to brand group ${index + 1}`);
+            dot.addEventListener("click", () => scrollToPage(index));
+            pagination.appendChild(dot);
+            return dot;
+        });
+    };
+
+    const updateDots = () => {
+        if (!dots.length) return;
+        const activePage = clamp(getCurrentPage(), 0, dots.length - 1);
+        dots.forEach((dot, index) => {
+            const isActive = index === activePage;
+            dot.classList.toggle("bg-primary", isActive);
+            dot.classList.toggle("bg-zinc-300", !isActive);
+            dot.setAttribute("aria-current", isActive ? "true" : "false");
+        });
+    };
+
+    const updateNavState = () => {
+        const maxScroll = getMaxScroll();
+        const hasCarouselPages = getPageCount() > 1;
+        if (!hasCarouselPages || maxScroll <= 4) {
+            if (prevButton) prevButton.style.display = "none";
+            if (nextButton) nextButton.style.display = "none";
+            return;
+        }
+        if (prevButton) prevButton.style.display = "";
+        if (nextButton) nextButton.style.display = "";
+
+        const atStart = track.scrollLeft <= 4;
+        const atEnd = track.scrollLeft >= maxScroll - 4;
+        if (prevButton) prevButton.style.display = atStart ? "none" : "";
+        if (nextButton) nextButton.style.display = atEnd ? "none" : "";
+        prevButton?.toggleAttribute("disabled", atStart);
+        nextButton?.toggleAttribute("disabled", atEnd);
+    };
+
+    prevButton?.addEventListener("click", () => scrollToPage(getCurrentPage() - 1));
+    nextButton?.addEventListener("click", () => scrollToPage(getCurrentPage() + 1));
+
+    track.addEventListener("scroll", () => {
+        updateDots();
+        updateNavState();
+    }, { passive: true });
+
+    window.addEventListener("resize", () => {
+        renderDots();
+        updateDots();
+        updateNavState();
+    });
+
+    renderDots();
+    updateDots();
+    updateNavState();
+})();

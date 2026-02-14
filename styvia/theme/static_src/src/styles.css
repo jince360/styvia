@@ -13,17 +13,11 @@
 
   /* Custom colors */
   --color-primary: #DC2626;
-  --color-primary-dark: #B91C1C;
   --color-background-light: #FFFFFF;
-  --color-background-dark: #111827;
   --color-surface-light: #F9FAFB;
-  --color-surface-dark: #1F2937;
   --color-text-light: #1F2937;
-  --color-text-dark: #F3F4F6;
   --color-text-muted-light: #6B7280;
-  --color-text-muted-dark: #9CA3AF;
   --color-accent-light: #FEF2F2;
-  --color-accent-dark: #371B1B;
 
   /* Fonts */
   
@@ -34,3 +28,14 @@
 }
 
 @source "../../../**/*.{html,py,js}";
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

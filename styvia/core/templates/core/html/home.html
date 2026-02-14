@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-    <div class="bg-white">
+    <div class="bg-white max-w-7xl mx-auto">
         <div class="relative aspect-[32/9] w-full overflow-hidden" data-carousel id="hero-carousel">
             {% for i in hero_images %}
                 <div
-                    class="absolute  px-2 md:px-0  inset-0 z-0 transition-opacity duration-700 ease-in-out {% if forloop.first %}opacity-100{% else %}opacity-0 pointer-events-none{% endif %}"
+                    class="absolute px-2 md:px-0 inset-0 z-0 transition-opacity duration-700 ease-in-out {% if forloop.first %}opacity-100{% else %}opacity-0 pointer-events-none{% endif %}"
                     data-carousel-slide
                 >
                     <img src="{{ i.desktop_image.url }}" alt="Hero banner {{ forloop.counter }}" class="w-full h-full object-cover rounded-xl md:rounded-none">
@@ -25,7 +25,7 @@
             <button
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full text-white shadow-lg hidden md:flex items-center justify-center"
-                style="background-color: rgba(0,0,0,0.72); "
+                style="background-color: rgba(0,0,0,0.72);"
                 aria-label="Next slide"
                 data-carousel-next
             >
@@ -48,8 +48,79 @@
                 {% endfor %}
             </div>
         </div>
+
+        <section class="py-8 md:py-16 px-4">
+        <div >
+            <!-- Section Header -->
+            <div class="flex items-end justify-between mb-2 md:mb-10">
+                <div class="space-y-1">
+                    <span class="text-primary font-bold tracking-widest text-xs uppercase">Curated Partners</span>
+                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-[#181111]">Our Featured Brands</h2>
+                </div>
+                <div class="hidden md:flex items-center gap-4">
+                    <button class="group flex items-center gap-2 text-sm font-semibold hover:text-primary transition-colors">
+                        View All Brands
+                        <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carousel Wrapper -->
+            <div class="relative group" data-brand-carousel>
+                <!-- Navigation Arrows -->
+                <button
+                    type="button"
+                    data-brand-prev
+                    aria-label="Previous brands"
+                    class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white shadow-xl border border-zinc-100 w-12 h-12 rounded-lg flex items-center justify-center text-zinc-400 hover:text-primary hover:border-primary disabled:text-zinc-300 disabled:border-zinc-200 disabled:cursor-not-allowed transition-all opacity-0 group-hover:opacity-100 hidden lg:flex"
+                >
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                    type="button"
+                    data-brand-next
+                    aria-label="Next brands"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white shadow-xl border border-zinc-100 w-12 h-12 rounded-lg flex items-center justify-center text-zinc-400 hover:text-primary hover:border-primary disabled:text-zinc-300 disabled:border-zinc-200 disabled:cursor-not-allowed transition-all opacity-0 group-hover:opacity-100 hidden lg:flex"
+                >
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+
+                <!-- Brand Track -->
+                <div class="flex overflow-x-auto gap-4 md:gap-6 no-scrollbar snap-x snap-mandatory scroll-smooth py-4" data-brand-track>
+                    <!-- Brand Card 1: Nike -->
+                    {% for i in brands %}
+
+                        <div class="brand-card flex-none snap-start w-44 sm:w-52 md:w-64">
+                        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-zinc-100 hover:shadow-lg transition-all cursor-pointer group/inner">
+                            <div class="overflow-hidden aspect-[4/3]">
+                                <img alt="{{i.brand_name}}" class="w-full h-full object-cover group-hover/inner:scale-105 transition-transform duration-500" src="{{i.brand_images.url}}"/>
+                            </div>
+                            <div class="min-h-20 px-4 py-3 flex flex-col items-center justify-center gap-1.5 border-t border-zinc-100">
+                                <div class="w-12 h-6 bg-center bg-no-repeat bg-contain opacity-70" style='background-image: url("{{i.brand_logo.url}}");'></div>
+                                <p class="text-[10px] font-bold text-zinc-800 uppercase tracking-[0.2em]">{{i.brand_name|title}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% endfor %}
+
+                    <!-- Brand Card 2: Adidas -->
+                    
+                </div>
+            </div>
+
+            <!-- Mobile View All Button -->
+            <div class="mt-6 flex justify-center md:hidden">
+                <button class="bg-[#181111] text-white px-8 py-3 rounded-lg font-bold text-sm tracking-wide">
+                    View All Partners
+                </button>
+            </div>
+
+            <!-- Pagination Dots -->
+            <div class="flex justify-center gap-2 mt-4" data-brand-pagination aria-label="Featured brands pagination"></div>
+        </div>
+    </section>
     </div>
+
+    
 {% endblock %}
-
-
-
