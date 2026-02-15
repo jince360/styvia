@@ -2,6 +2,7 @@ from django.db import models
 from category.models import Category, MainCategory, SubCategory
 from django.utils.text import slugify
 from django.conf import settings
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 PRODUCT_TYPE_CHOICES = [
@@ -178,6 +179,21 @@ class ProductVariant(models.Model):
         indexes = [
             models.Index(fields=["product", "is_active"])
         ]
+
+    def clean(self):
+        super().clean()
+        valid_choices = self.product.get_size_choice()
+        valid_codes = [i for i,j in valid_choices]
+        if self.size not in valid_codes:
+            valid_list = ", ".join(valid_codes)
+            raise ValidationError({
+                "size": f"Invalid size code '{self.size}'. Valid sizes: {valid_list}"
+            })
+        
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+        
 
     def __str__(self):
         return f"{self.product.product_name} - {self.color} / {self.size}"

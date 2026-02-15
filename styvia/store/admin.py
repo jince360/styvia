@@ -76,6 +76,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ["product_name", "sku", "description", "brand__brand_name"]
     prepopulated_fields = {"slug": ("product_name",)}
     readonly_fields = ["view_count", "created_on", "updated_on"]
+    autocomplete_fields = ["brand", "seller", "product_main_category", "product_subcategory", "product_category"]
 
     inlines = [ProductVariantInline, ProductImageInline]
 
