@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "account",
     "store",
     "design",
+    "sizemanager",
 ]
 
 TAILWIND_APP_NAME = "theme"

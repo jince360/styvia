@@ -85,7 +85,7 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.sub_category.name} - {self.name}"
+        return f" {self.sub_category.name} - {self.name}"
     
 
 

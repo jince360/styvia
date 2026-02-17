@@ -3,37 +3,9 @@ from category.models import Category, MainCategory, SubCategory
 from django.utils.text import slugify
 from django.conf import settings
 from django.core.exceptions import ValidationError
+import uuid
+from sizemanager.models import Size, SizeGroup
 # Create your models here.
-
-PRODUCT_TYPE_CHOICES = [
-    ("clothing", "Clothing"),
-    ("footwear", "Footwear"),
-    ("accessories", "Accessories"),
-]
-
-CLOTHING_SIZE_CHOICES = [
-    ("xs", "Extra Small"),
-    ("s", "Small"),
-    ("m", "Medium"),
-    ("l", "Large"),
-    ("xl", "Extra Large"),
-    ("xxl", "XXL"),
-    ("xxxl", "XXXL"),
-]
-
-FOOTWEAR_SIZE_CHOICES = [
-    ("uk3", "UK 3"),
-    ("uk4", "UK 4"),
-    ("uk5", "UK 5"),
-    ("uk6", "UK 6"),
-    ("uk7", "UK 7"),
-    ("uk8", "UK 8"),
-    ("uk9", "UK 9"),
-    ("uk10", "UK 10"),
-    ("uk11", "UK 11"),
-    ("uk12", "UK 12"),
-    ("uk13", "UK 13"),
-]
 
 class Brand(models.Model):
     brand_name = models.CharField(max_length=100, unique=True)
@@ -107,10 +79,20 @@ class Product(models.Model):
     product_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="products")
 
     product_name = models.CharField(max_length=200)
+    product_detailed_name = models.CharField(max_length=200, null=True, blank=True)
+    color = models.CharField(max_length=50)
     slug = models.SlugField(max_length=200, null=True, blank=True, unique=True)
-    sku = models.CharField(max_length=50, unique=True, help_text="Stock Keeping Unit")
+    sku = models.CharField(max_length=50, unique=True, blank=True, editable=False, help_text="Auto-generated Stock Keeping Unit")
     description = models.TextField()
-    product_type = models.CharField(choices=PRODUCT_TYPE_CHOICES, max_length=20,default="clothing")
+    product_type = models.CharField(choices=[
+            ("topwear", "Topwear"),
+            ("bottomwear", "Bottomwear"),
+            ("footwear", "Footwear"),
+            ("accessories", "Accessories"),
+
+    ], max_length=20,default="topwear")
+
+    size_group = models.ForeignKey(SizeGroup, on_delete=models.CASCADE, null=True, blank=True, related_name="products")
     
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -136,7 +118,16 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.product_name)
+
+        if not self.sku:
+            main_cat = self.product_main_category.name[:3].upper() if self.product_main_category else "XXX"
+            cat = self.product_category.name[:3].upper() if self.product_category else "XXX"
+            random_part = uuid.uuid4().hex[:4].upper()
+            color_code = self.color[:3].upper()
+            self.sku = f"{main_cat}-{cat}-{color_code}-{random_part}"
         super().save(*args, **kwargs)
+
+    
 
     def __str__(self):
         return self.product_name
@@ -149,22 +140,19 @@ class Product(models.Model):
     def is_on_sale(self):
         return self.sale_price is not None and self.sale_price<self.base_price
     
-    def get_size_choice(self):
-        if self.product_type == "clothing":
-            return CLOTHING_SIZE_CHOICES
-        elif self.product_type == "footwear":
-            return FOOTWEAR_SIZE_CHOICES
-        else:
-            return []
+    def get_available_sizes(self):
+        if self.size_group:
+            return self.size_group.sizes.filter(is_active=True)
+        return Size.objects.none()
+
     
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,related_name="variants")
-    color = models.CharField(max_length=50)
-    size = models.CharField(max_length=15, help_text="Size code (e.g., 'm', 'uk8')")
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True,related_name="variants")
     size_display = models.CharField(max_length=100, blank=True, help_text="Measurement in inches/cm (e.g'Chest:38-40 inches' or 'Length: 27 inches')")
 
     stock = models.PositiveIntegerField(default=0)
-    sku = models.CharField(max_length=50, unique=True, help_text="Variant SKU")
+    sku = models.CharField(max_length=50, unique=True, blank=True, editable=False, help_text="Variant SKU")
     price_adjustment = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Price difference from base product (e.g., +50 for XL)")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -174,29 +162,24 @@ class ProductVariant(models.Model):
     class Meta:
         verbose_name = "Product variant"
         verbose_name_plural = "Product Variants"
-        ordering = ["color", "size"]
-        unique_together = ["product", "color", "size"]
+        ordering = ["size__order"]
+        unique_together = ["product", "size"]
         indexes = [
             models.Index(fields=["product", "is_active"])
         ]
 
-    def clean(self):
-        super().clean()
-        valid_choices = self.product.get_size_choice()
-        valid_codes = [i for i,j in valid_choices]
-        if self.size not in valid_codes:
-            valid_list = ", ".join(valid_codes)
-            raise ValidationError({
-                "size": f"Invalid size code '{self.size}'. Valid sizes: {valid_list}"
-            })
         
     def save(self, *args, **kwargs):
+        if not self.sku:
+            random_part = uuid.uuid4().hex[:4].upper()
+            size_code = self.size.name.upper() if self.size else "NA"
+            self.sku = f"{self.product.sku}-{size_code}-{random_part}"
         self.full_clean()
         super().save(*args, **kwargs)
         
 
     def __str__(self):
-        return f"{self.product.product_name} - {self.color} / {self.size}"
+        return f"{self.product.product_name} - {self.size}"
     
     @property
     def is_in_stock(self):
@@ -206,18 +189,7 @@ class ProductVariant(models.Model):
     def variant_price(self):
         return self.product.current_price +self.price_adjustment
     
-    def get_size_display_full(self):
-        choice = self.product.get_size_choice()
-        size_label = self.size
-
-        for i, j in choice:
-            if i == self.size:
-                size_label = j
-                break
-
-        if self.size_display:
-            return f"{size_label} {self.size_display}"
-        return size_label
+    
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE, related_name="product_images")

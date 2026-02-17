@@ -1,6 +1,14 @@
 from django.contrib import admin
 from .models import Brand,Seller,ProductVariant,ProductImage,Product
+from sizemanager.models import Size, SizeGroup
+from django import forms
 # Register your models here.
+
+class ProductVariantInlineForm(forms.ModelForm):
+    
+    class Meta:
+        model = ProductVariant
+        fields = '__all__'
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
@@ -60,8 +68,28 @@ class SellerAdmin(admin.ModelAdmin):
 
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
+    form = ProductVariantInlineForm
     extra = 1
-    fields = ["color", "size", "size_display", "stock", "sku", "price_adjustment", "is_active"]
+    fields = ["size", "size_display", "stock", "price_adjustment", "is_active"]
+    readonly_fields = ["sku"]
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+
+        if obj and obj.size_group:
+          
+            size_queryset = Size.objects.filter(
+                group=obj.size_group,
+                is_active=True
+            )
+            formset.form.base_fields['size'].queryset = size_queryset
+            formset.form.base_fields['size'].empty_label = "Select size"
+        else:
+           
+            formset.form.base_fields['size'].queryset = Size.objects.none()
+            formset.form.base_fields['size'].empty_label = "⚠️ Set size group first!"
+
+        return formset
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -70,19 +98,22 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["product_name", "product_type", "brand", "seller","base_price", "sale_price","is_active", "is_featured","view_count","created_on"]
+    list_display = ["product_name", "product_type", "brand", "seller","base_price", "color", "sale_price","is_active", "is_featured","view_count","created_on"]
     list_editable = ["is_active", "is_featured"]
-    list_filter = ["product_type", "is_active", "is_featured", "brand","product_main_category","created_on"]
-    search_fields = ["product_name", "sku", "description", "brand__brand_name"]
+    list_filter = ["product_type", "color", "is_active", "is_featured", "brand","product_main_category","created_on"]
+    search_fields = ["product_name", "sku", "description", "brand__brand_name", "color"]
     prepopulated_fields = {"slug": ("product_name",)}
-    readonly_fields = ["view_count", "created_on", "updated_on"]
+    readonly_fields = ["sku", "view_count", "created_on", "updated_on"]
     autocomplete_fields = ["brand", "seller", "product_main_category", "product_subcategory", "product_category"]
 
     inlines = [ProductVariantInline, ProductImageInline]
 
     fieldsets = (
         ("Basic Information", {
-            "fields": ("product_name", "slug", "sku", "product_type", "description")
+            "fields": ("product_name", "product_detailed_name", "slug", "sku", "product_type", "description", "color")
+        }),
+        ("Size Group", {
+            "fields": ("size_group",),  
         }),
         ("Categories", {
             "fields": ("product_main_category", "product_subcategory", "product_category")
@@ -98,20 +129,27 @@ class ProductAdmin(admin.ModelAdmin):
         })
     )
 
+    def get_inline_instances(self, request, obj=None):
+        if not obj:
+            return []
+        return super().get_inline_instances(request, obj)
+
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ["product", "color", "size", "stock", "sku", "is_active", "created_at"]
+    form = ProductVariantInlineForm
+    list_display = ["product", "size", "stock", "sku", "is_active", "created_at"]
     list_editable = ["stock", "is_active"]
-    list_filter = ["is_active", "color", "size", "product__product_type"]
-    search_fields = ["product__product_name", "sku", "color"]
-    readonly_fields = ["created_at", "updated_at"]
+    list_filter = ["is_active", "size", "product__product_type"]
+    search_fields = ["product__product_name", "sku"]
+    readonly_fields = ["sku", "created_at", "updated_at"]
+    autocomplete_fields = ["product"]
     
     fieldsets = (
         ("Product", {
             "fields": ("product",)
         }),
         ("Variant Details", {
-            "fields": ("color", "size", "size_display", "sku")
+            "fields": ("size", "size_display", "sku")
         }),
         ("Inventory & Pricing", {
             "fields": ("stock", "price_adjustment")
