@@ -49,7 +49,7 @@
             </div>
         </div>
 
-        <section class="py-8 md:py-16 px-2 md:px-4">
+        <section class="py-8 px-2 md:px-4">
             <div>
                 <!-- Section Header -->
                 <div class="flex items-end justify-between mb-1 sm-md:mb-2 md:mb-10">
@@ -118,58 +118,63 @@
             </div>
         </section>
 
-        <section class="py-8 md:py-16 px-2 md:px-4">
-            <div class="flex items-center justify-between mb-10">
+        <section class="py-8 px-2 md:px-4">
+            <div class="flex items-center justify-between mb-1 sm-md:mb-2 md:mb-10">
                 <div>
-                    <h2 class="text-2xl sm-md:text-3xl md:text-4xl font-bold tracking-tight text-[#181111]">Popular Products</h2>
+                    <h2 class="mb-2 text-2xl sm-md:text-3xl md:text-4xl font-bold tracking-tight text-[#181111]">Popular Products</h2>
                     
                 </div>
-                <a class="group flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider hover:opacity-80 transition-all" href="#">
-                    View All
-                    <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
-                </a>
-            </div>
-            <!-- Product Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                <!-- Product Card 1 -->
-                {% for i in popular_products %}
-
-                    <div class="product-card group flex flex-col gap-2 relative">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-white shadow-sm">
-                        {% for j in i.product_images.all %}
-
-                            {% if j.is_primary %}
-
-                                <div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Model wearing yellow oversized cotton tee fashion shot" style='background-image: url("{{j.image.url}}");'>
-
-                                
-                        </div>
-                            
-                            {% endif %}
-                        
-                        {% endfor %}
-                        <!-- Wishlist Toggle -->
-                        <button class="wishlist-btn absolute top-2 right-2 h-8 w-8 flex items-center justify-center rounded-full bg-white/90 text-background-dark shadow-lg opacity-0 translate-y-2 transition-all duration-300 hover:text-primary">
-                            <span class="material-symbols-outlined">favorite</span>
-                        </button>
-                        <!-- Badge -->
-                        
-                    </div>
-                    <div class="flex flex-col gap-1.5 px-1">
-                        
-                        <h3 class="text-background-dark dark:text-white text-sm font-base  transition-colors line-clamp-1">{{i.product_name}}</h3>
-
-                        <p class="font-bold text-primary uppercase tracking-[0.15em]">{{i.brand.brand_name}}</p>
-                        <div class="flex items-center gap-3">
-                            <p class="text-background-dark dark:text-white text-base font-bold">{{i.sale_price}}</p>
-                            <p class="text-background-dark/40 dark:text-white/40 text-xs line-through font-medium">{{i.base_price}}</p>
-                        </div>
-                    </div>
+                <div class="hidden md:flex items-center gap-4">
+                    <a class="group flex items-center gap-2 text-sm font-semibold hover:text-primary transition-colors" href="#">
+                        View All Products
+                        <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </a>
                 </div>
-                
-                {% endfor %}
-                
             </div>
+            <div class="relative" data-product-carousel>
+                <button
+                    type="button"
+                    data-product-prev
+                    aria-label="Previous products"
+                    class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white shadow-xl border border-zinc-100 w-12 h-12 rounded-lg flex items-center justify-center text-zinc-400 hover:text-primary hover:border-primary disabled:text-zinc-300 disabled:border-zinc-200 disabled:cursor-not-allowed transition-all hidden md:flex"
+                >
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                    type="button"
+                    data-product-next
+                    aria-label="Next products"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white shadow-xl border border-zinc-100 w-12 h-12 rounded-lg flex items-center justify-center text-zinc-400 hover:text-primary hover:border-primary disabled:text-zinc-300 disabled:border-zinc-200 disabled:cursor-not-allowed transition-all hidden md:flex"
+                >
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+
+                <div class="flex overflow-x-auto gap-4 md:gap-6 no-scrollbar snap-x snap-mandatory scroll-smooth py-2" data-product-track>
+                    {% for i in popular_products %}
+                        <div class="product-card group flex-none snap-start w-36 sm:w-40 md:w-44 lg:w-48 xl:w-52 flex flex-col gap-2 relative">
+                            <div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-white shadow-sm">
+                                
+                                        <div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="{{i.brand.brand_name}}" style='background-image: url("{{i.get_primary_image.image.url}}");'></div>
+                                    
+                                <button class="wishlist-btn absolute top-2 right-2 h-8 w-8 flex items-center justify-center rounded-full bg-white/90 text-background-dark shadow-lg opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 hover:text-primary">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
+                            </div>
+                            <div class="flex flex-col gap-0 px-1">
+                                <h3 class="text-background-dark text-sm font-base transition-colors line-clamp-1">{{i.product_name}}</h3>
+
+                                <p class="font-medium sm-md:font-semibold text-sm sm-md:text-base text-primary uppercase tracking-[0.01em]">{{i.brand.brand_name}}</p>
+                                <div class="flex items-center gap-3">
+                                    <p class="text-background-dark text-base font-medium sm-md:font-bold">{{i.sale_price}}</p>
+                                    <p class="text-background-dark/40 text-xs line-through font-medium">{{i.base_price}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-2 mt-6" data-product-pagination aria-label="Popular products pagination"></div>
             
         </section>
     </div>

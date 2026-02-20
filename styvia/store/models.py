@@ -135,6 +135,15 @@ class Product(models.Model):
     @property
     def current_price(self):
         return self.sale_price if self.sale_price else self.base_price
+    
+    @property
+    def get_primary_image(self):
+        image = self.product_images.filter(is_primary=True).first()
+        if not image:
+            image = self.product_images.first()
+        return image
+
+
 
     @property
     def is_on_sale(self):
@@ -193,11 +202,16 @@ class ProductVariant(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE, related_name="product_images")
-    image = models.ImageField(upload_to="products/images", null=True,blank=True)
+    image = models.ImageField(upload_to="products/images")
     alt_text = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.product.product_images.filter(is_primary=True).exists():
+            self.is_primary =True
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Product image"

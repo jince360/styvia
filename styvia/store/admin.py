@@ -2,6 +2,9 @@ from django.contrib import admin
 from .models import Brand,Seller,ProductVariant,ProductImage,Product
 from sizemanager.models import Size, SizeGroup
 from django import forms
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 # Register your models here.
 
 class ProductVariantInlineForm(forms.ModelForm):
@@ -133,6 +136,18 @@ class ProductAdmin(admin.ModelAdmin):
         if not obj:
             return []
         return super().get_inline_instances(request, obj)
+    
+    def response_add(self, request, obj, post_url_continue=None):
+        
+        messages.warning(
+            request,
+            f"⚠️ Product '{obj.product_name}' saved! Now add variants and images below."
+        )
+        
+        # Always redirect to edit page after creating
+        return HttpResponseRedirect(
+            reverse('admin:store_product_change', args=[obj.pk])
+        )
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):

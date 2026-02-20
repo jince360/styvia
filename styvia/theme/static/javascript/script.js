@@ -316,3 +316,160 @@
     updateDots();
     updateNavState();
 })();
+
+(() => {
+    const productCarousel = document.querySelector("[data-product-carousel]");
+    if (!productCarousel) return;
+
+    const track = productCarousel.querySelector("[data-product-track]");
+    const prevButton = productCarousel.querySelector("[data-product-prev]");
+    const nextButton = productCarousel.querySelector("[data-product-next]");
+    const pagination = productCarousel.closest("section")?.querySelector("[data-product-pagination]");
+
+    if (!track) return;
+
+    const getPageWidth = () => track.clientWidth;
+    const getMaxScroll = () => Math.max(track.scrollWidth - track.clientWidth, 0);
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const getPageCount = () => {
+        const width = getPageWidth();
+        const maxScroll = getMaxScroll();
+        if (!width) return 1;
+        return Math.max(1, Math.ceil(maxScroll / width) + 1);
+    };
+    let dots = [];
+
+    const getCurrentPage = () => {
+        const width = getPageWidth();
+        if (!width) return 0;
+        return Math.round(track.scrollLeft / width);
+    };
+
+    const scrollToPage = (pageIndex) => {
+        const width = getPageWidth();
+        const maxScroll = getMaxScroll();
+        if (!width || maxScroll <= 0) return;
+
+        const target = clamp(pageIndex * width, 0, maxScroll);
+        track.scrollTo({ left: target, behavior: "smooth" });
+    };
+
+    const renderDots = () => {
+        if (!pagination) return;
+
+        pagination.innerHTML = "";
+        const pageCount = getPageCount();
+        if (pageCount <= 1) {
+            pagination.classList.add("hidden");
+            dots = [];
+            return;
+        }
+
+        pagination.classList.remove("hidden");
+        dots = Array.from({ length: pageCount }, (_, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "w-2 h-2 rounded-full bg-zinc-300 transition-colors";
+            dot.setAttribute("aria-label", `Go to product group ${index + 1}`);
+            dot.addEventListener("click", () => scrollToPage(index));
+            pagination.appendChild(dot);
+            return dot;
+        });
+    };
+
+    const updateDots = () => {
+        if (!dots.length) return;
+        const activePage = clamp(getCurrentPage(), 0, dots.length - 1);
+        dots.forEach((dot, index) => {
+            const isActive = index === activePage;
+            dot.classList.toggle("bg-primary", isActive);
+            dot.classList.toggle("bg-zinc-300", !isActive);
+            dot.setAttribute("aria-current", isActive ? "true" : "false");
+        });
+    };
+
+    const updateNavState = () => {
+        const maxScroll = getMaxScroll();
+        const hasCarouselPages = getPageCount() > 1;
+        if (!hasCarouselPages || maxScroll <= 4) {
+            if (prevButton) prevButton.style.display = "none";
+            if (nextButton) nextButton.style.display = "none";
+            return;
+        }
+        if (prevButton) prevButton.style.display = "";
+        if (nextButton) nextButton.style.display = "";
+
+        const atStart = track.scrollLeft <= 4;
+        const atEnd = track.scrollLeft >= maxScroll - 4;
+        if (prevButton) prevButton.style.display = atStart ? "none" : "";
+        if (nextButton) nextButton.style.display = atEnd ? "none" : "";
+        prevButton?.toggleAttribute("disabled", atStart);
+        nextButton?.toggleAttribute("disabled", atEnd);
+    };
+
+    prevButton?.addEventListener("click", () => scrollToPage(getCurrentPage() - 1));
+    nextButton?.addEventListener("click", () => scrollToPage(getCurrentPage() + 1));
+
+    track.addEventListener("scroll", () => {
+        updateDots();
+        updateNavState();
+    }, { passive: true });
+
+    window.addEventListener("resize", () => {
+        renderDots();
+        updateDots();
+        updateNavState();
+    });
+
+    renderDots();
+    updateDots();
+    updateNavState();
+})();
+
+(() => {
+    const openButton = document.getElementById("store-filter-open");
+    const closeButton = document.getElementById("store-filter-close");
+    const drawer = document.getElementById("store-filter-drawer");
+    const overlay = document.getElementById("store-filter-overlay");
+    const desktopMedia = window.matchMedia("(min-width: 1024px)");
+
+    if (!openButton || !closeButton || !drawer || !overlay) return;
+
+    const openDrawer = () => {
+        drawer.classList.remove("-translate-x-full");
+        overlay.classList.remove("opacity-0", "pointer-events-none");
+        overlay.classList.add("opacity-100");
+        drawer.setAttribute("aria-hidden", "false");
+        openButton.setAttribute("aria-expanded", "true");
+    };
+
+    const closeDrawer = () => {
+        drawer.classList.add("-translate-x-full");
+        overlay.classList.add("opacity-0", "pointer-events-none");
+        overlay.classList.remove("opacity-100");
+        drawer.setAttribute("aria-hidden", "true");
+        openButton.setAttribute("aria-expanded", "false");
+    };
+
+    openButton.addEventListener("click", openDrawer);
+    closeButton.addEventListener("click", closeDrawer);
+    overlay.addEventListener("click", closeDrawer);
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeDrawer();
+    });
+
+    const syncResponsiveState = () => {
+        if (desktopMedia.matches) {
+            overlay.classList.add("opacity-0", "pointer-events-none");
+            overlay.classList.remove("opacity-100");
+            drawer.setAttribute("aria-hidden", "false");
+            openButton.setAttribute("aria-expanded", "false");
+            return;
+        }
+        closeDrawer();
+    };
+
+    desktopMedia.addEventListener("change", syncResponsiveState);
+    syncResponsiveState();
+})();

@@ -28,3 +28,4 @@ class Hero(models.Model):
             if active_count >= 6:
                 raise ValidationError("Maximum 6 hero images are allowed. Please deactivate one first")
 
+

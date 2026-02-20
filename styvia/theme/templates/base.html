@@ -22,7 +22,7 @@
 
         <script defer src="{% static 'javascript/script.js' %}"></script>
     </head>
-    <body class="bg-gray-50 font-body min-h-screen overflow-x-hidden transition-colors duration-300">
+    <body class=" font-body min-h-screen overflow-x-hidden transition-colors duration-300">
         <header
             class="sticky top-0 w-full z-50 bg-background-light shadow-nav transition-colors duration-300 md:fixed md:top-0"
         >
@@ -37,7 +37,7 @@
                     >
                         <span class="material-symbols-outlined text-2xl">menu</span>
                     </button>
-                    <a class="flex items-center justify-center" href="#">
+                    <a class="flex items-center justify-center" href="{% url "home" %}">
                         <span>
                             <img src="{% static 'images/logo/styvia-logo-name.png' %}" alt="Logo" class="w-24" />
                         </span>
@@ -49,7 +49,7 @@
                             <li
                                 class="group h-full flex items-center px-4 cursor-pointer border-b-4 border-transparent hover:border-primary hover:text-primary transition-all duration-200"
                             >
-                                <a href="#">{{ i.name|title }}</a>
+                                <a href="{% url "products_by_main_cat" i.slug %}">{{ i.name|title }}</a>
                                 <div
                                     class="mega-menu absolute top-20 left-0 w-full bg-white shadow-lg border-t opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-40"
                                 >
@@ -192,7 +192,7 @@
                         {% for main_category in main_categories %}
                             <div class="mobile-menu-group">
                                 <div class="flex items-center justify-between px-2 py-2 rounded hover:bg-gray-50">
-                                    <a class="flex-1" href="#">{{ main_category.name }}</a>
+                                    <a class="flex-1" href="{% url "products_by_main_cat" main_category.slug %}">{{ main_category.name }}</a>
                                     {% if main_category.subcategories.all %}
                                         <button
                                             type="button"
