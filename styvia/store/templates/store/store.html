@@ -125,6 +125,37 @@
 
             <!-- Main Product Area -->
             <main class="flex-1">
+                {% if main_cat and main_cat_banner_slides %}
+                    <section class="relative mb-6 aspect-[32/9] w-full overflow-hidden rounded-xl" data-carousel>
+                        {% for slide in main_cat_banner_slides %}
+                            <div
+                                class="absolute inset-0 transition-opacity duration-700 ease-in-out {% if forloop.first %}opacity-100{% else %}opacity-0 pointer-events-none{% endif %}"
+                                data-carousel-slide
+                            >
+                                {% if slide.link %}
+                                    <a href="{{ slide.link }}" class="block h-full w-full">
+                                        <img src="{{ slide.image.url }}" alt="{{ main_cat.name }} banner {{ forloop.counter }}" class="h-full w-full object-cover" />
+                                    </a>
+                                {% else %}
+                                    <img src="{{ slide.image.url }}" alt="{{ main_cat.name }} banner {{ forloop.counter }}" class="h-full w-full object-cover" />
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" data-carousel-pagination aria-label="Main category banner pagination">
+                            {% for slide in main_cat_banner_slides %}
+                                <button
+                                    type="button"
+                                    class="h-1.5 w-1.5 cursor-pointer rounded-full transition-all duration-300 {% if forloop.first %}bg-white{% else %}bg-white/50{% endif %}"
+                                    aria-label="Go to slide {{ forloop.counter }}"
+                                    aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                                    data-carousel-indicator
+                                ></button>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endif %}
+
                 <!-- Top Action Bar -->
                 <div class="flex items-center justify-between mb-8 gap-4">
                     <div class="lg:hidden">
