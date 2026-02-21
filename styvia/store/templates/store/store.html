@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="max-w-[1440px] mx-auto px-2 md:px-4  py-4">
+    <div class="max-w-[1440px] mx-auto px-2 md:px-4 py-4">
         <div
             id="store-filter-overlay"
             class="lg:hidden fixed inset-0 z-40 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200"
@@ -14,113 +14,194 @@
                 class="fixed top-0 left-0 z-50 h-full w-[85vw] max-w-sm bg-white shadow-xl -translate-x-full transition-transform duration-200 lg:static lg:z-auto lg:h-auto lg:w-64 lg:max-w-none lg:bg-transparent lg:shadow-none lg:translate-x-0"
                 aria-hidden="true"
             >
-                <div class="h-full overflow-y-auto p-4 lg:h-auto lg:overflow-visible lg:p-0 lg:sticky lg:top-8 space-y-8">
-                    <div class="flex items-center justify-between lg:hidden">
-                        <h2 class="text-xl font-bold tracking-tight">Filters</h2>
-                        <button
-                            id="store-filter-close"
-                            type="button"
-                            class="p-2 rounded-full hover:bg-gray-100"
-                            aria-label="Close filters"
-                        >
-                            <span class="material-symbols-outlined">close</span>
-                        </button>
-                    </div>
-                    <div class="hidden lg:flex items-center justify-between">
-                        <h2 class="text-xl font-semibold tracking-tight">Filters</h2>
-                        <button class="text-xs font-semibold text-primary uppercase tracking-wider hover:underline">Clear All</button>
-                    </div>
+                <form method="GET" action="" id="filter-form">
+                    <div class="h-full overflow-y-auto p-4 lg:h-auto lg:overflow-visible lg:p-0 lg:sticky lg:top-8 space-y-8">
+                        <div class="flex items-center justify-between lg:hidden">
+                            <h2 class="text-xl font-bold tracking-tight">Filters</h2>
+                            <button
+                                id="store-filter-close"
+                                type="button"
+                                class="p-2 rounded-full hover:bg-gray-100"
+                                aria-label="Close filters"
+                            >
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="hidden lg:flex items-center justify-between">
+                            <h2 class="text-xl font-semibold tracking-tight">Filters</h2>
+                            {% if main_cat %}
+                                <a href="{% url 'products_by_main_cat' main_cat.slug %}" class="text-xs font-semibold text-primary uppercase tracking-wider hover:underline">Clear All</a>
+                            {% else %}
+                                <a href="{% url 'store' %}" class="text-xs font-semibold text-primary uppercase tracking-wider hover:underline">Clear All</a>
+                            {% endif %}
+                        </div>
 
-                    <!-- Category Filter -->
+                        <!-- Subcategories Filter -->
+                    {% if filter_data.subcategories %}
                     <div class="border-b border-primary/10 pb-6">
                         <h3 class="font-semibold mb-4 flex items-center justify-between cursor-pointer">
-                            Category
+                            Subcategories
                             <span class="material-symbols-outlined text-sm">expand_more</span>
                         </h3>
                         <div class="space-y-2">
+                            {% for subcat in filter_data.subcategories %}
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input checked="" class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">All Products</span>
+                                <input 
+                                    type="checkbox" 
+                                    name="subcategory" 
+                                    value="{{ subcat.slug }}"
+                                    {% if subcat.slug in request.GET.subcategory %}checked{% endif %}
+                                    class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4"
+                                    onchange="this.form.submit()"
+                                />
+                                <span class="text-sm group-hover:text-primary transition-colors">{{ subcat.name }}</span>
                             </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">Fashion</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">Electronics</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">Home &amp; Living</span>
-                            </label>
+                            {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
 
-                    <!-- Price Range -->
-                    <div class="border-b border-primary/10 pb-6">
-                        <h3 class="font-semibold mb-4">Price Range</h3>
-                        <div class="px-2">
-                            <input class="w-full h-1.5 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary" max="1000" min="0" type="range"/>
-                            <div class="flex justify-between mt-3 text-sm text-slate-500 font-medium">
-                                <span>$0</span>
-                                <span>$1,000+</span>
+                                                <!-- Categories Filter -->
+                        {% if filter_data.categories %}
+                        <div class="border-b border-primary/10 pb-6">
+                            <h3 class="font-semibold mb-4 flex items-center justify-between cursor-pointer">
+                                Categories
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
+                            </h3>
+                            <div class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                                {% for cat in filter_data.categories %}
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input 
+                                        type="checkbox" 
+                                        name="category" 
+                                        value="{{ cat.slug }}"
+                                        {% if cat.slug in request.GET.category %}checked{% endif %}
+                                        class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4"
+                                        onchange="this.form.submit()"
+                                    />
+                                    <span class="text-sm group-hover:text-primary transition-colors">{{ cat.name }}</span>
+                                </label>
+                                {% endfor %}
                             </div>
                         </div>
-                    </div>
+                        {% endif %}
 
-                    <!-- Colors -->
-                    <div class="border-b border-primary/10 pb-6">
-                        <h3 class="font-semibold mb-4">Colors</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <button class="w-8 h-8 rounded-full border border-primary/10 bg-slate-900 ring-2 ring-transparent hover:ring-primary transition-all shadow-sm" title="Black"></button>
-                            <button class="w-8 h-8 rounded-full border border-primary/10 bg-white ring-2 ring-primary transition-all shadow-sm" title="White"></button>
-                            <button class="w-8 h-8 rounded-full border border-primary/10 bg-blue-600 ring-2 ring-transparent hover:ring-primary transition-all shadow-sm" title="Blue"></button>
-                            <button class="w-8 h-8 rounded-full border border-primary/10 bg-red-600 ring-2 ring-transparent hover:ring-primary transition-all shadow-sm" title="Red"></button>
-                            <button class="w-8 h-8 rounded-full border border-primary/10 bg-green-500 ring-2 ring-transparent hover:ring-primary transition-all shadow-sm" title="Green"></button>
+                        <!-- Price Range -->
+                        <div class="border-b border-primary/10 pb-6">
+                            <h3 class="font-semibold mb-4">Price Range</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input 
+                                        type="radio" 
+                                        name="price_range" 
+                                        value="0-500"
+                                        {% if request.GET.price_range == '0-500' %}checked{% endif %}
+                                        class="text-primary focus:ring-primary"
+                                        onchange="this.form.submit()"
+                                    />
+                                    <span class="text-sm group-hover:text-primary">Under ₹500</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input 
+                                        type="radio" 
+                                        name="price_range" 
+                                        value="500-1000"
+                                        {% if request.GET.price_range == '500-1000' %}checked{% endif %}
+                                        class="text-primary focus:ring-primary"
+                                        onchange="this.form.submit()"
+                                    />
+                                    <span class="text-sm group-hover:text-primary">₹500 - ₹1000</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input 
+                                        type="radio" 
+                                        name="price_range" 
+                                        value="1000-2000"
+                                        {% if request.GET.price_range == '1000-2000' %}checked{% endif %}
+                                        class="text-primary focus:ring-primary"
+                                        onchange="this.form.submit()"
+                                    />
+                                    <span class="text-sm group-hover:text-primary">₹1000 - ₹2000</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input 
+                                        type="radio" 
+                                        name="price_range" 
+                                        value="2000-5000"
+                                        {% if request.GET.price_range == '2000-5000' %}checked{% endif %}
+                                        class="text-primary focus:ring-primary"
+                                        onchange="this.form.submit()"
+                                    />
+                                    <span class="text-sm group-hover:text-primary">₹2000 - ₹5000</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input 
+                                        type="radio" 
+                                        name="price_range" 
+                                        value="5000-999999"
+                                        {% if request.GET.price_range == '5000-999999' %}checked{% endif %}
+                                        class="text-primary focus:ring-primary"
+                                        onchange="this.form.submit()"
+                                    />
+                                    <span class="text-sm group-hover:text-primary">Above ₹5000</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Sizes -->
-                    <div class="border-b border-primary/10 pb-6">
-                        <h3 class="font-semibold mb-4">Size</h3>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button class="py-2 text-xs font-bold border border-primary/10 rounded hover:border-primary hover:text-primary transition-all bg-white">XS</button>
-                            <button class="py-2 text-xs font-bold border border-primary bg-primary text-white rounded transition-all">S</button>
-                            <button class="py-2 text-xs font-bold border border-primary/10 rounded hover:border-primary hover:text-primary transition-all bg-white">M</button>
-                            <button class="py-2 text-xs font-bold border border-primary/10 rounded hover:border-primary hover:text-primary transition-all bg-white">L</button>
-                            <button class="py-2 text-xs font-bold border border-primary/10 rounded hover:border-primary hover:text-primary transition-all bg-white">XL</button>
-                            <button class="py-2 text-xs font-bold border border-primary/10 rounded hover:border-primary hover:text-primary transition-all bg-white">2XL</button>
+                        <!-- Brands -->
+                        <!-- Brands -->
+                        {% if filter_data.brands %}
+                        <div class="border-b border-primary/10 pb-6">
+                            <h3 class="font-semibold mb-4">Brands</h3>
+                            <div class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                                {% for brand in filter_data.brands %}
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input 
+                                        type="checkbox" 
+                                        name="brand" 
+                                        value="{{ brand.id }}"
+                                        {% if brand.id|stringformat:"s" in request.GET.brand %}checked{% endif %}
+                                        class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4"
+                                        onchange="this.form.submit()"
+                                    />
+                                    <span class="text-sm group-hover:text-primary transition-colors">{{ brand.brand_name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
+                        {% endif %}
 
-                    <!-- Brands -->
-                    <div>
-                        <h3 class="font-semibold mb-4">Brands</h3>
-                        <div class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">Aura Wear</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">Luxe Tech</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input checked="" class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">Urban Peak</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input class="rounded border-primary/20 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-                                <span class="text-sm group-hover:text-primary transition-colors">Zenith Labs</span>
-                            </label>
-                        </div>
-                    </div>
+                        <!-- Colors -->
+                            {% if filter_data.colors %}
+                            <div class="border-b border-primary/10 pb-6">
+                                <h3 class="font-semibold mb-4">Colors</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for color in filter_data.colors %}
+                                    <label class="relative cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            name="color" 
+                                            value="{{ color }}"
+                                            {% if color in request.GET.color %}checked{% endif %}
+                                            class="sr-only peer"
+                                            onchange="this.form.submit()"
+                                        />
+                                        <div class="w-8 h-8 rounded-full border-2 border-primary/20 transition-all shadow-sm peer-checked:ring-2 peer-checked:ring-primary peer-checked:ring-offset-2"
+                                            style="background-color: {{ color|lower }};"
+                                            title="{{ color }}">
+                                        </div>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
 
-                    <button class="w-full bg-primary text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all uppercase tracking-widest text-xs">
-                        Apply Filters
-                    </button>
-                </div>
+                        <!-- Apply Filters Button (Mobile) -->
+                        <button type="submit" class="lg:hidden w-full bg-primary text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all uppercase tracking-widest text-xs">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
             </aside>
 
             <!-- Main Product Area -->
@@ -142,6 +223,7 @@
                             </div>
                         {% endfor %}
 
+                        {% if main_cat_banner_slides.count > 1 %}
                         <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" data-carousel-pagination aria-label="Main category banner pagination">
                             {% for slide in main_cat_banner_slides %}
                                 <button
@@ -153,6 +235,7 @@
                                 ></button>
                             {% endfor %}
                         </div>
+                        {% endif %}
                     </section>
                 {% endif %}
 
@@ -171,56 +254,63 @@
                         </button>
                     </div>
                     <div class="flex items-center">
-                        <span class="text-sm text-slate-500 font-medium">Showing <span class="text-slate-900 font-bold">1–12</span> of 148 products</span>
+                        <span class="text-sm text-slate-500 font-medium">
+                            Showing <span class="text-slate-900 font-bold">{{ products.count }}</span> product{{ products.count|pluralize }}
+                        </span>
                     </div>
                 </div>
 
                 <!-- Product Grid -->
                 <div class="grid grid-cols-2 md:grid-cols-3 md-lg:grid-cols-4 lg:grid-cols-3 gap-x-2 lg:gap-x-4 gap-y-8">
-                    <!-- Product Card 1 -->
                     {% for i in products %}
-
                         <div class="group relative bg-white rounded-xl overflow-hidden border border-primary/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all flex flex-col">
-                        <div class="overflow-hidden relative bg-slate-50 aspect-square">
-
-
-                                    <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="{{ i.primary_image.alt_text|default:i.product_name }}" src="{{i.get_primary_image.image.url}}"/>
+                            <div class="overflow-hidden relative bg-slate-50 aspect-square">
+                                {% if i.get_primary_image %}
+                                    <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                                         alt="{{ i.get_primary_image.alt_text|default:i.product_name }}" 
+                                         src="{{ i.get_primary_image.image.url }}"/>
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                                        <span class="text-gray-400">No Image</span>
+                                    </div>
+                                {% endif %}
                                 
-                            
-                            
-                            
-                            <button class="absolute flex items-center justify-center cursor-pointer top-4 right-4 z-10 bg-white/80 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors">
-                                <span class="material-symbols-outlined text-slate-900">favorite</span>
-                            </button>
-                           
-                        </div>
-                        <div class="flex flex-col grow p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <p class="text-xs font-bold text-primary tracking-widest uppercase">{{i.brand.brand_name}}</p>
-                                <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-yellow-400 text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
-                                    <span class="text-xs font-bold">4.8</span>
+                                <button class="absolute flex items-center justify-center cursor-pointer top-4 right-4 z-10 bg-white/80 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors">
+                                    <span class="material-symbols-outlined text-slate-900">favorite</span>
+                                </button>
+                            </div>
+                            <div class="flex flex-col grow p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <p class="text-xs font-bold text-primary tracking-widest uppercase">{{ i.brand.brand_name }}</p>
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-yellow-400 text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+                                        <span class="text-xs font-bold">4.8</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-normal md:font-semibold text-base leading-tight mb-2 group-hover:text-primary transition-colors">{{ i.product_name }}</h3>
+                                <div class="mt-auto flex items-baseline gap-2">
+                                    <span class="text-base font-semibold md:font-bold">₹{{ i.current_price }}</span>
+                                    {% if i.is_on_sale %}
+                                        <span class="text-sm text-slate-400 line-through font-medium">₹{{ i.base_price }}</span>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <h3 class="font-normal md:font-semibold text-base leading-tight mb-2 group-hover:text-primary transition-colors">{{i.product_name}}</h3>
-                            <div class="mt-auto flex items-baseline gap-2">
-                                <span class="text-base font-semibold md:font-bold ">₨. {{i.current_price}}</span>
-                                <span class="text-sm text-slate-400 line-through font-medium">{{i.base_price}}</span>
-                            </div>
                         </div>
-                        
-                    </div>
-                    
-                    
+                    {% empty %}
+                        <div class="col-span-full text-center py-12">
+                            <p class="text-gray-500 text-lg mb-4">No products found matching your filters.</p>
+                            {% if main_cat %}
+                                <a href="{% url 'products_by_main_cat' main_cat.slug %}" class="inline-block text-primary font-semibold hover:underline">Clear filters</a>
+                            {% else %}
+                                <a href="{% url 'store' %}" class="inline-block text-primary font-semibold hover:underline">Clear filters</a>
+                            {% endif %}
+                        </div>
                     {% endfor %}
                 </div>
-                
 
                 <!-- Pagination -->
+                {% if products %}
                 <div class="mt-16 flex flex-col items-center gap-6">
-                    <button class="px-12 py-4 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all tracking-widest uppercase text-xs">
-                        Load More Products
-                    </button>
                     <div class="flex items-center gap-2">
                         <button class="w-10 h-10 flex items-center justify-center rounded border border-primary/10 hover:border-primary transition-colors">
                             <span class="material-symbols-outlined">chevron_left</span>
@@ -228,13 +318,12 @@
                         <button class="w-10 h-10 flex items-center justify-center rounded bg-primary text-white font-bold">1</button>
                         <button class="w-10 h-10 flex items-center justify-center rounded border border-primary/10 hover:border-primary transition-colors font-bold">2</button>
                         <button class="w-10 h-10 flex items-center justify-center rounded border border-primary/10 hover:border-primary transition-colors font-bold">3</button>
-                        <span class="px-2 text-slate-400">...</span>
-                        <button class="w-10 h-10 flex items-center justify-center rounded border border-primary/10 hover:border-primary transition-colors font-bold">12</button>
                         <button class="w-10 h-10 flex items-center justify-center rounded border border-primary/10 hover:border-primary transition-colors">
                             <span class="material-symbols-outlined">chevron_right</span>
                         </button>
                     </div>
                 </div>
+                {% endif %}
             </main>
         </div>
     </div>
