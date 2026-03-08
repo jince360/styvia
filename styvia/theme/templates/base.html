@@ -59,12 +59,14 @@
                                         {% for j in i.subcategories.all %}
                                             {% if j.is_active %}
                                                 <div>
-                                                    <h4 class="text-primary font-bold mb-3 uppercase text-xs">{{ j.name|title }}</h4>
+                                                    <a href="{% url "product_by_sub_cat" i.slug j.slug %}">
+                                                        <h4 class="text-primary font-bold mb-3 uppercase text-xs">{{ j.name|title }}</h4>
+                                                    </a>
                                                     <ul class="space-y-2 text-sm">
                                                         {% for k in j.categories.all %}
                                                             {% if k.is_active %}
                                                                 <li>
-                                                                    <a class="hover:font-semibold hover:text-gray-900" href="#">
+                                                                    <a class="hover:font-semibold hover:text-gray-900" href="{% url 'product_by_sub_cat' i.slug j.slug %}?category={{ k.slug }}">
                                                                         {{ k.name|title }}
                                                                     </a>
                                                                 </li>
@@ -83,20 +85,23 @@
                 <div
                     class="flex items-center gap-2 md:gap-6 flex-1 lg:flex-none justify-end lg:justify-start lg:min-w-[400px]"
                 >
-                    <div
+                    <form
+                        method="get"
+                        action="{% url "store" %}"
                         class="hidden md:flex items-center w-72 lg:w-96 bg-search-bg-light rounded-md px-4 py-2.5 transition-colors duration-300 group border border-gray-200 shadow-sm focus-within:bg-white focus-within:shadow-md focus-within:border-gray-300"
                     >
-                        <span
-                            class="material-symbols-outlined text-gray-400 text-lg mr-3 group-focus-within:text-gray-600"
+                        <button
+                            class="material-symbols-outlined text-gray-400 text-lg mr-3 group-focus-within:text-gray-600" type="submit"
                         >
                             search
-                        </span>
+                        </button>
                         <input
                             class="bg-transparent border-none outline-none text-sm w-full text-text-main-light placeholder-gray-400 p-0 focus:ring-0"
                             placeholder="Search for products, brands and more"
                             type="text"
+                            name="q"
                         />
-                    </div>
+                    </form>
                     <div class="flex items-center gap-1 sm:gap-4">
                         <div class="flex flex-col items-center cursor-pointer group px-2">
                             <span
@@ -144,18 +149,19 @@
             </div>
 
             <div id="mobile-search-bar" class="md:hidden px-2 pt-3 pb-3 border-t border-gray-100">
-                <div class="flex items-center gap-3 bg-search-bg-light rounded-md px-3 py-1 border border-gray-200">
-                    <span class="material-symbols-outlined text-gray-400 text-lg">search</span>
+                <form method="get" action="{% url "store" %}" class="flex items-center gap-3 bg-search-bg-light rounded-md px-3 py-1 border border-gray-200">
+                    <button class="material-symbols-outlined text-gray-400 text-lg" type="submit">search</button>
                     <input
                         id="mobile-search-input"
                         class="bg-transparent border-none outline-none text-sm w-full text-text-main-light placeholder-gray-400 p-0 focus:ring-0"
                         placeholder="Search for products, brands and more"
                         type="text"
+                        name="q"
                     />
                     <button id="mobile-search-close" type="button" class="py-0 sm-md:p-1 text-text-main-light" aria-label="Close search">
                         <span class="material-symbols-outlined text-lg">close</span>
                     </button>
-                </div>
+                </form>
             </div>
 
             <div
@@ -180,14 +186,16 @@
                     </button>
                 </div>
                 <div class="p-4 space-y-4">
-                    <div class="flex items-center gap-3 bg-search-bg-light rounded-md px-3 py-2 border border-gray-200">
-                        <span class="material-symbols-outlined text-gray-400 text-lg">search</span>
+                    <form method="get" action="{% url "store" %}" class="flex items-center gap-3 bg-search-bg-light rounded-md px-3 py-2 border border-gray-200">
+                        
+                        <button class="material-symbols-outlined text-gray-400 text-lg cursor-pointer" type="submit">search</button>
                         <input
                             class="bg-transparent border-none outline-none text-sm w-full text-text-main-light placeholder-gray-400 p-0 focus:ring-0"
                             placeholder="Search products"
                             type="text"
+                            name="q"
                         />
-                    </div>
+                    </form>
                     <nav class="space-y-2 text-sm font-semibold text-text-main-light uppercase">
                         {% for main_category in main_categories %}
                             <div class="mobile-menu-group">
@@ -214,7 +222,7 @@
                                         {% for sub_category in main_category.subcategories.all %}
                                             <div class="mobile-submenu-group">
                                                 <div class="flex items-center justify-between px-2 py-2 rounded hover:bg-gray-50 font-normal">
-                                                    <a class="flex-1" href="#">{{ sub_category.name }}</a>
+                                                    <a class="flex-1" href="{% url 'product_by_sub_cat' main_category.slug sub_category.slug %}">{{ sub_category.name }}</a>
                                                     {% if sub_category.categories.all %}
                                                         <button
                                                             type="button"
@@ -237,7 +245,7 @@
                                                         class="hidden ml-3 border-l border-gray-100 pl-2 py-1 space-y-1 font-normal"
                                                     >
                                                         {% for category in sub_category.categories.all %}
-                                                            <a class="block px-2 py-2 rounded hover:bg-gray-50" href="#">{{ category.name }}</a>
+                                                            <a class="block px-2 py-2 rounded hover:bg-gray-50" href="{% url 'product_by_sub_cat' main_category.slug sub_category.slug %}?category={{ category.slug }}">{{ category.name }}</a>
                                                         {% endfor %}
                                                     </div>
                                                 {% endif %}
